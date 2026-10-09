@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cảm ơn vì đã đến!</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: linear-gradient(180deg, #ffc5d3 0%, #ff8fa3 100%);
+        min-height: 100vh;
+        font-family: "Cambria", serif;
+        overflow-x: hidden;
+      }
+
+      /* =========================================
+       1. MÀN HÌNH CHÀO MỪNG (TRANG ĐẦU TIÊN)
+    ========================================= */
+      #welcomeScreen {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(180deg, #ffc5d3 0%, #ff8fa3 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+        transition:
+          opacity 0.8s ease,
+          transform 0.8s ease;
+      }
+
+      #welcomeScreen.fade-out {
+        opacity: 0;
+        transform: scale(1.08);
+        pointer-events: none;
+      }
+
+      .welcome-container {
+        width: 100%;
+        max-width: 400px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .birthday-banner {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #b81446;
+        text-shadow:
+          0 4px 15px rgba(255, 255, 255, 0.8),
+          0 2px 8px rgba(184, 20, 70, 0.3);
+        margin-bottom: 30px;
+        line-height: 1.4;
+        opacity: 0;
+        animation: fadeUpBanner 1.2s cubic-bezier(0.25, 1, 0.5, 1) 0.3s forwards;
+      }
+
+      @keyframes fadeUpBanner {
+        0% {
+          transform: translateY(30px) scale(0.9);
+          opacity: 0;
+        }
+        100% {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+      }
+
+      .bouquet-wrapper {
+        width: 220px;
+        max-width: 65vw;
+        margin-bottom: 40px;
+        filter: drop-shadow(0 12px 20px rgba(232, 74, 115, 0.35));
+        animation: gentleFloat 3.5s ease-in-out infinite;
+      }
+
+      .bouquet-wrapper img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      @keyframes gentleFloat {
+        0%,
+        100% {
+          transform: translateY(0) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-10px) rotate(1.5deg);
+        }
+      }
+
+      .hint-text {
+        font-size: 1.35rem;
+        color: #9c1039;
+        margin-bottom: 30px;
+        text-shadow: 0 1px 4px rgba(255, 255, 255, 0.7);
+      }
+
+      /* Nút Sẵn sàng - Kiểu Pha lê */
+      .btn-ready {
+        background: rgba(255, 255, 255, 0.3);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        color: #b81446;
+        font-family: "Cambria", serif;
+        font-size: 1.55rem;
+        font-weight: 700;
+        padding: 12px 42px;
+        border-radius: 40px;
+        cursor: pointer;
+        box-shadow:
+          0 8px 32px rgba(255, 105, 135, 0.4),
+          inset 0 0 12px rgba(255, 255, 255, 0.6);
+        transition: all 0.3s ease;
+        animation: floatBtn 2.5s infinite ease-in-out;
+      }
+
+      .btn-ready:active {
+        transform: scale(0.93);
+      }
+
+      @keyframes floatBtn {
+        0%,
+        100% {
+          transform: translateY(0);
+          box-shadow:
+            0 8px 32px rgba(255, 105, 135, 0.4),
+            inset 0 0 12px rgba(255, 255, 255, 0.6);
+        }
+        50% {
+          transform: translateY(-6px);
+          box-shadow:
+            0 15px 35px rgba(255, 105, 135, 0.6),
+            inset 0 0 18px rgba(255, 255, 255, 0.8);
+        }
+      }
+
+      /* =========================================
+       2. TRANG NỘI DUNG CHÍNH (TRANG KỶ NIỆM)
+    ========================================= */
+      #mainContent {
+        display: none;
+        opacity: 0;
+        justify-content: center;
+        padding: 20px 14px 50vh 14px;
+        transition: opacity 1s ease;
+      }
+
+      #mainContent.active {
+        display: flex;
+        opacity: 1;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 420px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .card {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.84);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-radius: 26px;
+        padding: 18px;
+        box-shadow: 0 10px 30px rgba(224, 169, 196, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+      }
+
+      .header-title {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: #b83b5e;
+        margin-bottom: 14px;
+        text-align: center;
+        letter-spacing: 0.5px;
+      }
+
+      /* Bố cục Gallery ảnh */
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 10px;
+        width: 100%;
+        height: 310px;
+      }
+
+      .main-photo {
+        height: 100%;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+        background: #fbf5f7;
+      }
+
+      .main-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition:
+          opacity 0.4s ease,
+          transform 0.4s ease;
+      }
+
+      .side-photo-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        overflow-y: auto;
+        padding-right: 2px;
+        scrollbar-width: thin;
+        scrollbar-color: #f2bac9 transparent;
+      }
+
+      .side-photo-list::-webkit-scrollbar {
+        width: 4px;
+      }
+
+      .side-photo-list::-webkit-scrollbar-thumb {
+        background-color: #f2bac9;
+        border-radius: 4px;
+      }
+
+      .side-item {
+        flex: 0 0 95px;
+        height: 95px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+
+      .side-item:active {
+        transform: scale(0.95);
+      }
+
+      .side-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        pointer-events: none;
+      }
+
+      /* Đồ thị âm thanh */
+      .waveform-card {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .player-header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .play-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #e85a71 0%, #b83b5e 100%);
+        border: none;
+        color: white;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(184, 59, 94, 0.35);
+        transition: transform 0.2s;
+      }
+
+      .play-btn:active {
+        transform: scale(0.92);
+      }
+
+      .track-meta {
+        flex-grow: 1;
+      }
+
+      .track-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #4a2835;
+      }
+
+      .track-time {
+        font-size: 0.78rem;
+        color: #9c7a88;
+        margin-top: 2px;
+      }
+
+      .waveform-container {
+        position: relative;
+        width: 100%;
+        height: 44px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+      }
+
+      .waveform-base,
+      .waveform-progress {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .waveform-base {
+        width: 100%;
+      }
+
+      .waveform-progress {
+        width: 0%;
+        transition: width 0.1s linear;
+      }
+
+      /* Bên trong lớp "đã phát" luôn rộng bằng cả thanh sóng -> chỉ bị cắt dần chứ không bị ép thành các vạch mảnh */
+      .waveform-progress .wave-inner {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        height: 100%;
+        flex: none;
+      }
+
+      .bar {
+        flex: 1;
+        border-radius: 4px;
+      }
+
+      .waveform-base .bar {
+        background: #edd2de;
+      }
+
+      .waveform-progress .bar {
+        background: #d83a6f;
+      }
+
+      /* Khung thư gắn nơ hồng */
+      .letter-card {
+        position: relative;
+        padding: 32px 22px 26px 22px;
+        background-color: rgba(255, 255, 255, 0.88);
+        background-image:
+          radial-gradient(rgba(232, 110, 154, 0.18) 1.2px, transparent 1.2px),
+          radial-gradient(rgba(179, 107, 185, 0.15) 1.2px, transparent 1.2px);
+        background-size: 26px 26px;
+        background-position:
+          0 0,
+          13px 13px;
+        overflow: visible;
+      }
+
+      .ribbon-bow {
+        position: absolute;
+        top: -12px;
+        right: 12px;
+        width: 64px;
+        height: 42px;
+        z-index: 10;
+        pointer-events: none;
+        filter: drop-shadow(0 4px 8px rgba(216, 58, 111, 0.35));
+      }
+
+      .bow-center {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        background: linear-gradient(135deg, #ff8fa3, #ff4d6d);
+        border-radius: 50%;
+        top: 10px;
+        left: 24px;
+        z-index: 3;
+      }
+
+      .bow-loop-left,
+      .bow-loop-right {
+        position: absolute;
+        top: 4px;
+        width: 28px;
+        height: 26px;
+        background: linear-gradient(145deg, #ffa8ba, #ff6584);
+        border-radius: 50% 50% 40% 40%;
+        z-index: 2;
+      }
+
+      .bow-loop-left {
+        left: 3px;
+        transform: rotate(-25deg);
+      }
+      .bow-loop-right {
+        right: 3px;
+        transform: rotate(25deg);
+      }
+
+      .bow-tail-left,
+      .bow-tail-right {
+        position: absolute;
+        top: 18px;
+        width: 14px;
+        height: 26px;
+        background: linear-gradient(180deg, #ff4d6d, #e03a59);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+        z-index: 1;
+      }
+
+      .bow-tail-left {
+        left: 17px;
+        transform: rotate(18deg);
+      }
+      .bow-tail-right {
+        right: 17px;
+        transform: rotate(-18deg);
+      }
+
+      .letter-title {
+        position: relative;
+        z-index: 1;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #9c3d62;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .letter-body {
+        position: relative;
+        z-index: 1;
+        line-height: 2.1;
+        text-align: justify;
+        font-size: 1.15rem;
+        letter-spacing: 0.2px;
+      }
+
+      .lyric-phrase {
+        display: inline;
+        color: #c9a7b9;
+        opacity: 0.4;
+        transition:
+          color 0.3s ease,
+          opacity 0.3s ease,
+          font-weight 0.3s ease,
+          text-shadow 0.3s ease;
+      }
+
+      .lyric-phrase.active {
+        color: #6a1b4d !important;
+        font-weight: 700 !important;
+        font-style: italic;
+        opacity: 1 !important;
+        text-shadow: 0 0 10px rgba(222, 131, 169, 0.3);
+      }
+
+      .lyric-phrase.passed {
+        color: #b18ea0;
+        opacity: 0.55;
+      }
+
+      /* Hiệu ứng tim bay */
+      .heart {
+        position: fixed;
+        font-size: 14px;
+        pointer-events: none;
+        animation: floatUp 3s linear forwards;
+        z-index: 999;
+      }
+
+      @keyframes floatUp {
+        0% {
+          transform: translateY(100vh) scale(0.5);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-10vh) scale(1.2);
+          opacity: 0;
+        }
+      }
+    </style>
+
+    <!-- Cá nhân hóa: đọc ?c=<mã> (link ngắn) hoặc ?data=<chuỗi> (link dài dự phòng) -->
+    <style>
+      /* Trong lúc nạp dữ liệu thiệp: chưa cho bấm "Sẵn sàng" (tránh mở khi chưa có ảnh/nhạc của khách) */
+      html.is-loading .btn-ready { pointer-events: none; opacity: 0.55; }
+    </style>
+    <script>
+      window.Card = (function () {
+        /* ====== CẤU HÌNH (phải trùng upload.html) ====== */
+        var CLOUD_NAME = "yx8ugl6f";
+
+        var RES = "https://res.cloudinary.com/" + CLOUD_NAME + "/";
+        var RAW_BASE = RES + "raw/upload/"; // file JSON chứa dữ liệu thiệp (link ngắn)
+
+        var qs = new URLSearchParams(location.search);
+        var shortId = qs.get("c");
+        var longData = qs.get("data");
+        var Card = { promise: Promise.resolve(null), RES: RES };
+        if (!shortId && !longData) return Card; // link gốc -> thiệp mẫu
+
+        var root = document.documentElement;
+        root.classList.add("is-loading");
+        setTimeout(function () { root.classList.remove("is-loading"); }, 9000); // dự phòng
+
+        function decodeData(s) {
+          var b64 = s.replace(/ /g, "+").replace(/-/g, "+").replace(/_/g, "/");
+          while (b64.length % 4) b64 += "=";
+          var bin = atob(b64);
+          var bytes = Uint8Array.from(bin, function (c) { return c.charCodeAt(0); });
+          return JSON.parse(new TextDecoder().decode(bytes));
+        }
+
+        // Link ngắn: tải file JSON từ Cloudinary (upload.html bỏ đuôi .json nên thử cả hai kiểu).
+        // Chờ tối đa 7 giây: mạng treo thì dùng thiệp mẫu chứ không để trang đứng.
+        async function loadShort(id) {
+          if (!/^(v\d+\/)?[\w\-\/\.]+$/.test(id) || id.indexOf("..") >= 0) throw new Error("Mã thiệp không hợp lệ");
+          var ctrl = new AbortController();
+          var timer = setTimeout(function () { ctrl.abort(); }, 7000);
+          var tries = [id, id + ".json"], lastErr;
+          try {
+            for (var i = 0; i < tries.length; i++) {
+              try {
+                var res = await fetch(RAW_BASE + tries[i], { cache: "no-cache", signal: ctrl.signal });
+                if (res.ok) return await res.json();
+                lastErr = new Error("HTTP " + res.status);
+              } catch (e) { lastErr = e; }
+            }
+          } finally { clearTimeout(timer); }
+          throw lastErr;
+        }
+
+        var load = shortId ? loadShort(shortId) : Promise.resolve().then(function () { return decodeData(longData); });
+        var giveUp = new Promise(function (_, reject) { setTimeout(function () { reject(new Error("Hết thời gian chờ dữ liệu thiệp")); }, 9000); });
+        Card.promise = Promise.race([load, giveUp]);
+        return Card;
+      })();
+    </script>
+  </head>
+  <body>
+    <!-- =========================================
+       1. MÀN HÌNH CHÀO MỪNG BAN ĐẦU (TỶ LỆ DỌC)
+  ========================================= -->
+    <div id="welcomeScreen">
+      <div class="welcome-container">
+        <div class="birthday-banner">✨ Cảm ơn vì đã đến ✨</div>
+
+        <div class="bouquet-wrapper">
+          <img
+            src="https://images.vexels.com/media/users/3/260786/isolated/preview/fa0fe7215c2ec0fef0cf43ffae5fa21e-heart-balloons-flower-bouquet.png"
+            alt="Heart Bouquet"
+          />
+        </div>
+
+        <div class="hint-text">Hãy bật âm thanh để trải nghiệm tốt nhất 💖</div>
+        <button class="btn-ready" onclick="enterExperience()">
+          Sẵn sàng 💖
+        </button>
+      </div>
+    </div>
+
+    <!-- =========================================
+       2. MÀN HÌNH NỘI DUNG CHÍNH
+  ========================================= -->
+    <div id="mainContent">
+      <div class="container">
+        <!-- KHUNG ẢNH TỰ ĐỘNG CHẠY -->
+        <div class="card">
+          <div class="header-title">💌 Cảm ơn vì đã đến 💞</div>
+          <div class="gallery-grid">
+            <div class="main-photo">
+              <img id="mainImg" src="" alt="Main Photo" />
+            </div>
+            <div class="side-photo-list" id="sideList"></div>
+          </div>
+        </div>
+
+        <!-- ĐỒ THỊ SÓNG ÂM THANH -->
+        <div class="card waveform-card">
+          <div class="player-header">
+            <button class="play-btn" id="playBtn" onclick="togglePlay()">
+              ▶
+            </button>
+            <div class="track-meta">
+              <div class="track-title">iu anhhhh</div>
+              <div class="track-time" id="timeDisplay">0:00 / 0:00</div>
+            </div>
+          </div>
+
+          <div
+            class="waveform-container"
+            id="waveContainer"
+            onclick="seekAudio(event)"
+          >
+            <div class="waveform-base" id="waveBase"></div>
+            <div class="waveform-progress" id="waveProgress"></div>
+          </div>
+
+          <audio id="audio" src="music-7dcs.mp3"></audio>
+        </div>
+
+        <!-- KHUNG LỜI NHẮN THƯ TAY GẮN NƠ -->
+        <div class="card letter-card">
+          <div class="ribbon-bow">
+            <div class="bow-center"></div>
+            <div class="bow-loop-left"></div>
+            <div class="bow-loop-right"></div>
+            <div class="bow-tail-left"></div>
+            <div class="bow-tail-right"></div>
+          </div>
+
+          <div class="letter-title">💌 Lời nhắn gửi từ trái tim</div>
+          <div class="letter-body" id="letterBody"><span class="lyric-phrase">Anh không cần phải hoàn hảo, em chỉ cần anh thật lòng.</span>
+<span class="lyric-phrase">Trên thế giới này, có rất nhiều chuyện có thể làm em vui vẻ. Ví dụ như chụp được một tấm ảnh đẹp, ví dụ dạo phố phường trong khi thời tiết thật đẹp, ví dụ như khi được gặp anh.</span>
+<span class="lyric-phrase">Nếu có tiền thì chúng ta sẽ cùng nhau đi du lịch khắp thế giới, không có tiền thì mình sẽ cùng đi dạo, ngắm hoàng hôn. Dù thế nào đi nữa, chúng mình vẫn ở cạnh nhau.</span>
+<span class="lyric-phrase">Sẽ thật vui nếu em là động lực để anh cố gắng mỗi ngày. Nhưng em cũng muốn là điểm tựa để anh dựa vào khi anh cảm thấy mệt mỏi</span></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- 1. CHUYỂN CẢNH KHI NHẤN "SẴN SÀNG" ---
+      function enterExperience() {
+        const welcome = document.getElementById("welcomeScreen");
+        const main = document.getElementById("mainContent");
+
+        // Bật nhạc ngay trong cú chạm (điện thoại chỉ cho phát khi có thao tác của người dùng)
+        wantPlay = true;
+        playAudio();
+
+        welcome.classList.add("fade-out");
+        setTimeout(() => {
+          welcome.style.display = "none";
+          main.classList.add("active");
+          setTimeout(updateLyricsHighlight, 200);
+        }, 750);
+      }
+
+      // --- 2. DỮ LIỆU ẢNH & TỰ ĐỘNG CHẠY SLIDE ---
+      const photoList = ["a1-ybqd.webp","a2-8u9q.webp","a3-6hfv.webp","a4-9cjw.webp","a5-xhah.webp","a6-qzab.webp"];
+
+      let currentMainIndex = 0;
+      let autoSlideInterval = null;
+      const mainImg = document.getElementById("mainImg");
+      const sideList = document.getElementById("sideList");
+
+      function renderGallery() {
+        mainImg.src = photoList[currentMainIndex];
+        sideList.innerHTML = "";
+        photoList.forEach((src, index) => {
+          if (index !== currentMainIndex) {
+            const div = document.createElement("div");
+            div.className = "side-item";
+            div.innerHTML = `<img src="../${src}" alt="Sub Photo">`;
+            div.onclick = () => {
+              switchPhoto(index);
+              resetAutoSlide();
+            };
+            sideList.appendChild(div);
+          }
+        });
+      }
+
+      function switchPhoto(clickedIndex) {
+        mainImg.style.opacity = "0.2";
+        mainImg.style.transform = "scale(0.97)";
+        setTimeout(() => {
+          currentMainIndex = clickedIndex;
+          renderGallery();
+          mainImg.style.opacity = "1";
+          mainImg.style.transform = "scale(1)";
+        }, 180);
+      }
+
+      function startAutoSlide() {
+        autoSlideInterval = setInterval(() => {
+          let nextIndex = (currentMainIndex + 1) % photoList.length;
+          switchPhoto(nextIndex);
+        }, 3500);
+      }
+
+      function resetAutoSlide() {
+        clearInterval(autoSlideInterval);
+        startAutoSlide();
+      }
+
+      renderGallery();
+      startAutoSlide();
+
+      // --- 3. SÓNG ÂM & TRÌNH PHÁT NHẠC ---
+      const barHeights = [
+        30, 50, 75, 40, 85, 100, 60, 35, 75, 90, 100, 75, 45, 65, 90, 100, 55,
+        35, 50, 80, 95, 100, 70, 45, 80, 95, 60, 40, 70, 85, 100, 75, 50, 65,
+        90, 45, 30, 20,
+      ];
+
+      const waveBase = document.getElementById("waveBase");
+      const waveProgress = document.getElementById("waveProgress");
+
+      // ===== Tùy chọn hiệu ứng (true = bật, false = tắt) =====
+      const SHOW_WAVE_PROGRESS = true; // false = bỏ hẳn phần sóng đổi màu hồng khi nhạc chạy
+      const SHOW_FLOATING_HEARTS = true; // false = tắt tim / hoa bay
+
+      // Lớp sóng "đã phát" (màu hồng): các vạch giữ nguyên kích thước, chỉ lộ dần theo thời gian bài hát
+      const progressInner = document.createElement("div");
+      progressInner.className = "wave-inner";
+      waveProgress.appendChild(progressInner);
+
+      barHeights.forEach((h) => {
+        const b1 = document.createElement("div");
+        b1.className = "bar";
+        b1.style.height = h + "%";
+        waveBase.appendChild(b1);
+
+        const b2 = document.createElement("div");
+        b2.className = "bar";
+        b2.style.height = h + "%";
+        progressInner.appendChild(b2);
+      });
+
+      const fitWave = () => { progressInner.style.width = waveBase.clientWidth + "px"; };
+      if (window.ResizeObserver) new ResizeObserver(fitWave).observe(waveBase);
+      window.addEventListener("resize", fitWave);
+      fitWave();
+      if (!SHOW_WAVE_PROGRESS) waveProgress.style.display = "none";
+
+      const audio = document.getElementById("audio");
+      const playBtn = document.getElementById("playBtn");
+      const timeDisplay = document.getElementById("timeDisplay");
+      const waveContainer = document.getElementById("waveContainer");
+
+      let wantPlay = false; // người xem đang muốn nghe nhạc (đã bấm Sẵn sàng / Phát và chưa tự tắt)
+
+      function playAudio() {
+        const p = audio.play();
+        if (p && p.then) p.catch(() => {});
+      }
+
+      function togglePlay() {
+        if (audio.paused) {
+          wantPlay = true;
+          playAudio();
+        } else {
+          wantPlay = false;
+          audio.pause();
+        }
+      }
+
+      // Nút ▶ / ❚❚ luôn đúng với trạng thái thật của nhạc
+      audio.addEventListener("play", () => { playBtn.innerText = "❚❚"; });
+      audio.addEventListener("pause", () => { if (!audio.ended) playBtn.innerText = "▶"; });
+
+      function formatTime(sec) {
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${m}:${s < 10 ? "0" : ""}${s}`;
+      }
+
+      audio.addEventListener("timeupdate", () => {
+        fitWave();
+        if (audio.duration) {
+          const percent = (audio.currentTime / audio.duration) * 100;
+          waveProgress.style.width = percent + "%";
+          timeDisplay.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+        }
+      });
+
+      audio.addEventListener("ended", () => {
+        playBtn.innerText = "▶";
+        waveProgress.style.width = "0%";
+      });
+
+      function seekAudio(e) {
+        const rect = waveContainer.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        if (audio.duration) {
+          audio.currentTime = (clickX / rect.width) * audio.duration;
+        }
+      }
+
+      // --- 4. THEO DÕI CUỘN TRANG & LÀM ĐẬM CHỮ ---
+      let phrases = document.querySelectorAll(".lyric-phrase");
+
+      function updateLyricsHighlight() {
+        const viewportCenter = window.innerHeight / 2;
+        const isAtBottom =
+          window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 60;
+
+        // Lời nhắn dài: giữ đúng như thiệp mẫu (vùng sáng ±75px quanh giữa màn hình).
+        // Lời nhắn ngắn: thu hẹp vùng sáng để từng dòng lần lượt sáng lên, không bị sáng cả đoạn cùng lúc.
+        const bodyH = document.getElementById("letterBody").offsetHeight;
+        const zone = bodyH >= 200 ? 75 : Math.max(24, bodyH * 0.25);
+
+        phrases.forEach((el, index) => {
+          if (isAtBottom && index >= phrases.length - 2) {
+            el.classList.add("active");
+            el.classList.remove("passed");
+            return;
+          }
+
+          const rect = el.getBoundingClientRect();
+          const elementCenter = rect.top + rect.height / 2;
+          const distanceToCenter = Math.abs(viewportCenter - elementCenter);
+
+          if (distanceToCenter < zone) {
+            el.classList.add("active");
+            el.classList.remove("passed");
+          } else if (elementCenter < viewportCenter - zone) {
+            el.classList.remove("active");
+            el.classList.add("passed");
+          } else {
+            el.classList.remove("active");
+            el.classList.remove("passed");
+          }
+        });
+      }
+
+      window.addEventListener("scroll", updateLyricsHighlight, {
+        passive: true,
+      });
+      window.addEventListener("resize", updateLyricsHighlight);
+
+      // --- 5. TIM BAY NGẪU NHIÊN ---
+      function createHeart() {
+        const heart = document.createElement("div");
+        heart.classList.add("heart");
+        heart.innerText = ["❤️", "💖", "✨", "🌸", "🎀"][
+          Math.floor(Math.random() * 5)
+        ];
+        heart.style.left = Math.random() * 100 + "vw";
+        heart.style.animationDuration = Math.random() * 2 + 3 + "s";
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 4000);
+      }
+      if (SHOW_FLOATING_HEARTS) setInterval(createHeart, 650);
+
+      // --- 6. CÁ NHÂN HÓA TỪ LINK (?c=... hoặc ?data=...) ---
+      // Link không có tham số -> giữ nguyên thiệp mẫu ở trên.
+      (function () {
+        const PATH_RE = /^v\d+\/[\w\-\/]+\.[a-z0-9]+$/i; // dạng gọn: v1234567890/ten_file.ext
+        const IMG_BASE = Card.RES + "image/upload/f_auto,q_auto,w_1000/";
+        const VIDEO_BASE = Card.RES + "video/upload/"; // nhạc cũng nằm trong nhóm "video" của Cloudinary
+
+        const trackTitle = document.querySelector(".track-title");
+        const DEFAULT_AUDIO_SRC = audio.getAttribute("src"); // nhạc mặc định (nhạc ban đầu của bạn)
+        const DEFAULT_TRACK = trackTitle.textContent;
+        let customAudio = false;
+
+        const text = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
+        const toImage = (p) => {
+          if (typeof p !== "string") return null;
+          if (p.startsWith("https://res.cloudinary.com/")) return p;
+          return PATH_RE.test(p) ? IMG_BASE + p : null;
+        };
+
+        // Cắt lời nhắn thành các cụm câu để chữ sáng dần khi cuộn (xuống dòng = tách cụm; câu ngắn được gộp lại)
+        function splitMessage(msg) {
+          const out = [];
+          msg.split(/\n+/).forEach((line) => {
+            line = line.trim();
+            if (!line) return;
+            let buf = "";
+            (line.match(/[^.!?…]+[.!?…]*/g) || [line]).forEach((part) => {
+              part = part.trim();
+              if (!part) return;
+              buf = buf ? buf + " " + part : part;
+              if (buf.length >= 40) { out.push(buf); buf = ""; }
+            });
+            if (buf) out.push(buf);
+          });
+          return out.slice(0, 14);
+        }
+
+        function applyCard(d) {
+          const me = text(d.n, 40), you = text(d.n2, 40);
+          const T = Array.isArray(d.t) ? d.t : [];
+
+          // Tiêu đề (để trống thì giữ chữ có sẵn)
+          const t1 = text(T[0], 30), t2 = text(T[1], 40);
+          if (t1) {
+            document.querySelector(".birthday-banner").textContent = "✨ " + t1 + " ✨";
+            document.querySelector(".header-title").textContent = "💌 " + t1 + " 💞";
+          }
+          if (t2) document.querySelector(".letter-title").textContent = "💌 " + t2;
+
+          // Lời nhắn (kèm "Gửi ..." và tên người gửi)
+          const msg = text(d.m, 1200);
+          if (msg) {
+            const lines = splitMessage(msg);
+            if (you) lines.unshift("Gửi " + you + ",");
+            if (me) lines.push("— " + me);
+            const body = document.getElementById("letterBody");
+            body.textContent = "";
+            const oneLineEach = lines.length <= 5; // lời nhắn ngắn: mỗi cụm một dòng để hiệu ứng sáng chạy từng dòng
+            lines.forEach((t, k) => {
+              if (k && !oneLineEach) body.append(" ");
+              const span = document.createElement("span");
+              span.className = "lyric-phrase";
+              if (oneLineEach) span.style.display = "block";
+              span.textContent = t; // textContent: an toàn, không chạy HTML lạ
+              body.appendChild(span);
+            });
+            phrases = document.querySelectorAll(".lyric-phrase");
+          }
+
+          // Ảnh (tối đa 6) -> thay danh sách ảnh của slide
+          const imgs = (Array.isArray(d.i) ? d.i : []).map(toImage).filter(Boolean).slice(0, 6);
+          if (imgs.length) {
+            photoList.length = 0;
+            imgs.forEach((u) => photoList.push(u));
+            currentMainIndex = 0;
+            clearInterval(autoSlideInterval);
+            renderGallery();
+            if (photoList.length > 1) startAutoSlide();
+          }
+
+          // Nhạc: khách có tải thì dùng, không thì giữ bài mặc định
+          if (typeof d.a === "string" && PATH_RE.test(d.a)) {
+            const ext = d.a.split(".").pop().toLowerCase();
+            // mp3 / m4a / aac phát được trên mọi điện thoại; định dạng khác (wav, ogg, flac...) -> Cloudinary đổi sang mp3
+            audio.src = /^(mp3|m4a|aac)$/.test(ext)
+              ? VIDEO_BASE + d.a
+              : VIDEO_BASE + "f_mp3/" + d.a.replace(/\.[^.]+$/, ".mp3");
+            audio.preload = "metadata"; // kiểm tra sớm: lỗi thì còn kịp chuyển về nhạc mặc định
+            audio.load();
+            trackTitle.textContent = text(d.s, 40) || "Bài hát của chúng mình";
+            customAudio = true;
+          }
+        }
+
+        // Nhạc riêng của khách không tải / không phát được -> tự chuyển về nhạc mặc định
+        audio.addEventListener("error", () => {
+          if (!customAudio) return;
+          customAudio = false;
+          audio.src = DEFAULT_AUDIO_SRC;
+          audio.preload = "auto";
+          trackTitle.textContent = DEFAULT_TRACK;
+          audio.load();
+          if (wantPlay) playAudio();
+        });
+
+        Card.promise
+          .then((card) => { if (card) applyCard(card); })
+          .catch((err) => console.error("Không đọc được dữ liệu thiệp, dùng nội dung mẫu:", err))
+          .finally(() => document.documentElement.classList.remove("is-loading"));
+      })();
+    </script>
+  </body>
+</html>
